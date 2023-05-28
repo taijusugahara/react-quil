@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import "react-quill/dist/quill.snow.css";
 import dynamic from "next/dynamic";
 import ReactHtmlParser from "react-html-parser";
@@ -37,6 +37,7 @@ function MyComponent() {
   const dammy_html_string = "<h1>Hello</h1><p>xxx</p><p>yyy</p><h2>XXX</h2>";
   const [updateText,setUpdateText] = useState(dammy_html_string)
 
+  const formHeight = useRef(null)
   const handleSubmit = () => {
     const stringRefContent = quilRef.current.value;
     const htmlRefContent = ReactHtmlParser(stringRefContent);
@@ -62,10 +63,26 @@ function MyComponent() {
     },
   };
 
-  console.log(quilRef2)
+  useEffect(() => {
+    const element = formHeight?.current;
+
+    if (!element) return;
+
+    //resizeを検知する。
+    const observer = new ResizeObserver(() => {
+      console.log('change',element?.clientHeight)
+      // 👉 Do something when the element is resized
+    });
+
+    observer.observe(element);
+    return () => {
+      // Cleanup the observer by unobserving all elements
+      observer.disconnect();
+    };
+  }, [])
 
   return (
-    <>
+    <div ref={formHeight}>
       <ReactQuill forwardedRef={quilRef} theme="snow" />
       <div
         onClick={() => {
@@ -115,7 +132,7 @@ function MyComponent() {
           )}
         </div>
       )}
-    </>
+    </div>
   );
 }
 
